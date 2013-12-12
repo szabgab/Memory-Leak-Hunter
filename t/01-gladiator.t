@@ -22,15 +22,16 @@ my @cases = (
 my $dir = tempdir( CLEANUP => 1 );
 my $file = "$dir/code";
 
-my %base;
-{
-	open my $fh, '<', 't/base.txt' or die;
-	local $/ = undef;
-	my $expected = <$fh>;
-	%base = $expected =~ /([A-Za-z:-]+)\s+(\d+)/g
-}
+#my %base;
+#{
+#	open my $fh, '<', 't/base.txt' or die;
+#	local $/ = undef;
+#	my $expected = <$fh>;
+#	%base = $expected =~ /([A-Za-z:-]+)\s+(\d+)/g
+#}
 #diag explain \%base;
 #diag explain run_gladiator('');
+my $base = run_gladiator('');
 
 foreach my $c (@cases) {
 	#diag explain run_gladiator($c->{code});
@@ -56,7 +57,7 @@ sub run_gladiator {
 
 sub rebase {
 	my ($add) = @_;
-	my %data = %base;
+	my %data = %$base;
 	$data{$_} += $add->{$_} for keys %$add;
 	return \%data;
 }
