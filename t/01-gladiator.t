@@ -3,7 +3,6 @@ use warnings;
 
 use File::Temp qw(tempdir);
 use Test::More;
-plan tests => 2;
 
 my @cases = (
 	{
@@ -15,23 +14,41 @@ my @cases = (
 		code   => 'my $x;',
 		rebase => { SCALAR => 2 },
 		name   => 'one scalar',
-	}
+	},
+	{
+		code   => '{ my $x; }',
+		rebase => { SCALAR => 2 },
+		name   => 'one scalar in block',
+	},
+	{
+		code   => 'my $x = "abcd";',
+		rebase => { SCALAR => 3 },
+		name   => 'one scalar with scalar value',
+	},
+	{
+		code   => '{my $x = "abcd";}',
+		rebase => { SCALAR => 3 },
+		name   => 'one scalar with scalar value in scope',
+	},
+	{
+		code   => 'my $x = 1; $x++;',
+		rebase => { SCALAR => 4 },
+		name   => 'one scalar with scalar value',
+	},
+	{
+		code   => 'my @x;',
+		rebase => { SCALAR => 1, ARRAY => 1 },
+		name   => 'one array',
+	},
 );
 
+plan tests => scalar @cases;
 
 my $dir = tempdir( CLEANUP => 1 );
 my $file = "$dir/code";
 
-#my %base;
-#{
-#	open my $fh, '<', 't/base.txt' or die;
-#	local $/ = undef;
-#	my $expected = <$fh>;
-#	%base = $expected =~ /([A-Za-z:-]+)\s+(\d+)/g
-#}
-#diag explain \%base;
-#diag explain run_gladiator('');
 my $base = run_gladiator('');
+#diag explain $base;
 
 foreach my $c (@cases) {
 	#diag explain run_gladiator($c->{code});
