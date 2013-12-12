@@ -12,6 +12,9 @@ my @cases = (
 		name   => 'base',
 	},
 	{
+		code   => 'my $x;',
+		rebase => { SCALAR => 2 },
+		name   => 'one scalar',
 	}
 );
 
@@ -27,13 +30,13 @@ my %base;
 	%base = $expected =~ /([A-Za-z:-]+)\s+(\d+)/g
 }
 #diag explain \%base;
-
 #diag explain run_gladiator('');
 
-is_deeply run_gladiator(''), \%base, 'base';
+foreach my $c (@cases) {
+	#diag explain run_gladiator($c->{code});
+	is_deeply run_gladiator($c->{code}), rebase($c->{rebase}), $c->{name};
+}
 
-is_deeply run_gladiator('my $x;'), rebase( SCALAR => 2 ), 'my $x;';
-#diag explain run_gladiator('my $x;');
 
 sub run_gladiator {
 	my ($code) = @_;
@@ -52,8 +55,8 @@ sub run_gladiator {
 }
 
 sub rebase {
-	my %add = @_;
+	my ($add) = @_;
 	my %data = %base;
-	$data{$_} += $add{$_} for keys %add;
+	$data{$_} += $add->{$_} for keys %$add;
 	return \%data;
 }
