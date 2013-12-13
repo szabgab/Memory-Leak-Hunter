@@ -37,6 +37,8 @@ sub f {
 
 CODE
 
+my $code12 = $code11 . 'f();';
+my $code13 = $code11 . 'f() for 1..100;';
 
 my @cases = (
 	{
@@ -110,6 +112,18 @@ my @cases = (
 		code   => $code11,
 		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
 			SCALAR => 122, ARRAY => 25, CODE => 31, GLOB => 53 },
+		name   => 'function with weaken',
+	},
+	{
+		code   => $code12,
+		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+			SCALAR => 123, ARRAY => 25, CODE => 31, GLOB => 53 },
+		name   => 'function with weaken',
+	},
+	{
+		code   => $code13,
+		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+			SCALAR => 127, ARRAY => 25, CODE => 31, GLOB => 53 },
 		name   => 'function with weaken',
 	},
 );
