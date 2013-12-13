@@ -40,6 +40,21 @@ my @cases = (
 		rebase => { SCALAR => 1, ARRAY => 1 },
 		name   => 'one array',
 	},
+	{
+		code   => 'my $x = [];',
+		rebase => { SCALAR => 1, ARRAY => 1, REF => 1, 'REF-ARRAY' => 1 },
+		name   => 'one array ref',
+	},
+	{
+		code   => 'my %x;',
+		rebase => { SCALAR => 1, HASH => 1 },
+		name   => 'one hash',
+	},
+	{
+		code   => 'my $x = {};',
+		rebase => { SCALAR => 1, HASH => 1, 'REF-HASH' => 1, 'REF' => 1 },
+		name   => 'one hash ref',
+	},
 );
 
 plan tests => scalar @cases;
