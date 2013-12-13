@@ -21,24 +21,26 @@ CODE
 my $code2 = $code1 . 'f();';
 my $code3 = $code1 . 'f() for 1..100;';
 
-my $code11 = <<'CODE';
-use Scalar::Util qw(weaken);
-sub f {
-	my $x = {
-		name => 'Foo',
-	};
-	my $y = {
-		name => 'Bar',
-	};
-	$x->{partner} = $y;
-	$y->{partner} = $x;
-	weaken $y->{partner};
-}
+# Different version of  Scalar::Util will give different numbers.
 
-CODE
-
-my $code12 = $code11 . 'f();';
-my $code13 = $code11 . 'f() for 1..100;';
+#my $code11 = <<'CODE';
+#use Scalar::Util qw(weaken);
+#sub f {
+#	my $x = {
+#		name => 'Foo',
+#	};
+#	my $y = {
+#		name => 'Bar',
+#	};
+#	$x->{partner} = $y;
+#	$y->{partner} = $x;
+#	weaken $y->{partner};
+#}
+#
+#CODE
+#
+#my $code12 = $code11 . 'f();';
+#my $code13 = $code11 . 'f() for 1..100;';
 
 my @cases = (
 	{
@@ -108,24 +110,24 @@ my @cases = (
 			CODE => 1, GLOB => 1 },
 		name   => 'function + call 100 times',
 	},
-	{
-		code   => $code11,
-		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
-			SCALAR => 122, ARRAY => 25, CODE => 31, GLOB => 53 },
-		name   => 'function with weaken',
-	},
-	{
-		code   => $code12,
-		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
-			SCALAR => 123, ARRAY => 25, CODE => 31, GLOB => 53 },
-		name   => 'function with weaken + call once',
-	},
-	{
-		code   => $code13,
-		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
-			SCALAR => 127, ARRAY => 25, CODE => 31, GLOB => 53 },
-		name   => 'function with weaken + call 100-times',
-	},
+	#{
+	#	code   => $code11,
+	#	rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+	#		SCALAR => 122, ARRAY => 25, CODE => 31, GLOB => 53 },
+	#	name   => 'function with weaken',
+	#},
+	#{
+	#	code   => $code12,
+	#	rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+	#		SCALAR => 123, ARRAY => 25, CODE => 31, GLOB => 53 },
+	#	name   => 'function with weaken + call once',
+	#},
+	#{
+	#	code   => $code13,
+	#	rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+	#		SCALAR => 127, ARRAY => 25, CODE => 31, GLOB => 53 },
+	#	name   => 'function with weaken + call 100-times',
+	#},
 );
 
 plan tests => scalar @cases;
