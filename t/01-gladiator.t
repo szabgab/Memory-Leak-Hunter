@@ -118,13 +118,13 @@ my @cases = (
 		code   => $code12,
 		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
 			SCALAR => 123, ARRAY => 25, CODE => 31, GLOB => 53 },
-		name   => 'function with weaken',
+		name   => 'function with weaken + call once',
 	},
 	{
 		code   => $code13,
 		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
 			SCALAR => 127, ARRAY => 25, CODE => 31, GLOB => 53 },
-		name   => 'function with weaken',
+		name   => 'function with weaken + call 100-times',
 	},
 );
 
