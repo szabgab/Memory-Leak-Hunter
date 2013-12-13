@@ -4,6 +4,23 @@ use warnings;
 use File::Temp qw(tempdir);
 use Test::More;
 
+my $code1 = <<'CODE';
+sub f {
+	my $x = {
+		name => 'Foo',
+	};
+	my $y = {
+		name => 'Bar',
+	};
+	$x->{partner} = $y;
+	$y->{partner} = $x;
+}
+
+CODE
+
+my $code2 = $code1 . 'f();';
+my $code3 = $code1 . 'f() for 1..100;';
+
 my @cases = (
 	{
 		code   => '',
@@ -54,6 +71,23 @@ my @cases = (
 		code   => 'my $x = {};',
 		rebase => { SCALAR => 1, HASH => 1, 'REF-HASH' => 1, 'REF' => 1 },
 		name   => 'one hash ref',
+	},
+	{
+		code   => $code1,
+		rebase => { SCALAR => 12, ARRAY => 2, CODE => 1, GLOB => 1 },
+		name   => 'function',
+	},
+	{
+		code   => $code2,
+		rebase => { SCALAR => 15, ARRAY => 2, 'REF-HASH' => 2, REF => 2, HASH => 2, 
+			CODE => 1, GLOB => 1 },
+		name   => 'function + call once',
+	},
+	{
+		code   => $code3,
+		rebase => { SCALAR => 217, ARRAY => 2, 'REF-HASH' => 200, REF => 200, HASH => 200, 
+			CODE => 1, GLOB => 1 },
+		name   => 'function + call 100 times',
 	},
 );
 
