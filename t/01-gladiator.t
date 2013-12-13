@@ -21,6 +21,23 @@ CODE
 my $code2 = $code1 . 'f();';
 my $code3 = $code1 . 'f() for 1..100;';
 
+my $code11 = <<'CODE';
+use Scalar::Util qw(weaken);
+sub f {
+	my $x = {
+		name => 'Foo',
+	};
+	my $y = {
+		name => 'Bar',
+	};
+	$x->{partner} = $y;
+	$y->{partner} = $x;
+	weaken $y->{partner};
+}
+
+CODE
+
+
 my @cases = (
 	{
 		code   => '',
@@ -88,6 +105,12 @@ my @cases = (
 		rebase => { SCALAR => 217, ARRAY => 2, 'REF-HASH' => 200, REF => 200, HASH => 200, 
 			CODE => 1, GLOB => 1 },
 		name   => 'function + call 100 times',
+	},
+	{
+		code   => $code11,
+		rebase => { REGEXP => 2, REF => 1, 'REF-HASH' => 1, HASH => 7,
+			SCALAR => 122, ARRAY => 25, CODE => 31, GLOB => 53 },
+		name   => 'function with weaken',
 	},
 );
 
