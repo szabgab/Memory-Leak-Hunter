@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 use Test::More;
+use Test::Deep;
 
 use Devel::Gladiator;
 use Scalar::Util qw(weaken);
@@ -22,41 +23,71 @@ good() for 1..100;
 my $c3 = Devel::Gladiator::arena_ref_counts;
 
 #diag explain $c0;
+sub range {
+	my ($x, $y) = @_;
 
-is_deeply Memory::Leak::Hunter::_diff($c0, $c1), {
-  'HASH' => 1,
-  'REF' => 1,
+	return code(sub {
+		my $val = shift;
+		if ($x <= $val and $val <= $y) {
+			return 1;
+		} else {
+			return (0, "Expected $x <= VALUE <= $y\nReceived $val");
+		}
+	});
+}
+
+cmp_deeply Memory::Leak::Hunter::_diff($c0, $c1), {
+  'HASH'     => 1,
+  'REF'      => 1,
   'REF-HASH' => 1,
-  'SCALAR' => 19
+  'SCALAR'   => range(19, 20),
 }, '100 times weaken';
 
-is_deeply Memory::Leak::Hunter::_diff($c1, $c2), {
-  'HASH' => 201,
-  'REF' => 201,
+cmp_deeply Memory::Leak::Hunter::_diff($c1, $c2), {
+  'HASH'     => 201,
+  'REF'      => 201,
   'REF-HASH' => 201,
-  'SCALAR' => 219
+  'SCALAR'   => range(219, 220),
 }, '100 times with memory leak';
 
-is_deeply Memory::Leak::Hunter::_diff($c2, $c3), {
-  'HASH' => 1,
-  'REF' => 1,
+cmp_deeply Memory::Leak::Hunter::_diff($c2, $c3), {
+  'HASH'     => 1,
+  'REF'      => 1,
   'REF-HASH' => 1,
-  'SCALAR' => 19
+  'SCALAR'   => range(19, 20),
 }, '100 times weaken';
 
 my $mlh = Memory::Leak::Hunter->new;
 $mlh->record('start');
 $mlh->record('second');
-is_deeply $mlh->last_diff, {'REF-HASH' => 2, SCALAR => 24, HASH => 2, REF => 2}, 'self';
+cmp_deeply $mlh->last_diff, {
+	'REF-HASH' => 2, 
+	SCALAR     => range(24, 25), 
+	HASH       => 2, 
+	REF        => 2,
+}, 'self';
 $mlh->record('third');
-is_deeply $mlh->last_diff, {SCALAR => 29, REF => 3, 'REF-HASH' => 3,HASH => 3}, 'self + is_deeply';
+cmp_deeply $mlh->last_diff, {
+	SCALAR     => range(29, 30),
+	REF        => 3,
+    'REF-HASH' => 3,
+    HASH       => 3,
+}, 'self + is_deeply';
 good();
-is_deeply $mlh->last_diff, {'REF-HASH' => 3, HASH => 3, REF => 3, SCALAR => 29}, 'good';
+cmp_deeply $mlh->last_diff, {
+	'REF-HASH' => 3,
+	HASH       => 3,
+	REF        => 3,
+	SCALAR     => range(29,30),
+}, 'good';
 
 leak();
-is_deeply $mlh->last_diff, {HASH => 3, REF => 3, SCALAR => 29, 'REF-HASH' => 3}, 'leak';
-
-
+cmp_deeply $mlh->last_diff, {
+	HASH       => 3,
+	REF        => 3,
+	SCALAR     => range(29, 30),
+	'REF-HASH' => 3},
+, 'leak';
 
 
 my $records = $mlh->records;
