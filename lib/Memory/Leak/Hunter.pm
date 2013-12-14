@@ -74,7 +74,7 @@ Experimantal usage of L<Devel::Gladiator>
 
 Gabor Szabo L<http://szabgab.com/>
 
-=head COPYRIGHT AND LICENSE
+=head1 COPYRIGHT AND LICENSE
 
 This software is copyright (c) 2013 by Gabor Szabo L<http://szabgab.com/>.
 
