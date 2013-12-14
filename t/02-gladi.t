@@ -40,21 +40,21 @@ cmp_deeply Memory::Leak::Hunter::_diff($c0, $c1), {
   'HASH'     => 1,
   'REF'      => 1,
   'REF-HASH' => 1,
-  'SCALAR'   => range(19, 20),
+  'SCALAR'   => range(19, 26),
 }, '100 times weaken';
 
 cmp_deeply Memory::Leak::Hunter::_diff($c1, $c2), {
   'HASH'     => 201,
   'REF'      => 201,
   'REF-HASH' => 201,
-  'SCALAR'   => range(219, 220),
+  'SCALAR'   => range(219, 226),
 }, '100 times with memory leak';
 
 cmp_deeply Memory::Leak::Hunter::_diff($c2, $c3), {
   'HASH'     => 1,
   'REF'      => 1,
   'REF-HASH' => 1,
-  'SCALAR'   => range(19, 20),
+  'SCALAR'   => range(19, 26),
 }, '100 times weaken';
 
 my $mlh = Memory::Leak::Hunter->new;
@@ -62,30 +62,31 @@ $mlh->record('start');
 $mlh->record('second');
 cmp_deeply $mlh->last_diff, {
 	'REF-HASH' => 2, 
-	SCALAR     => range(24, 25), 
+	SCALAR     => range(24, 31),
 	HASH       => 2, 
 	REF        => 2,
 }, 'self';
 $mlh->record('third');
 cmp_deeply $mlh->last_diff, {
-	SCALAR     => range(29, 30),
+	SCALAR     => range(29, 36),
 	REF        => 3,
     'REF-HASH' => 3,
     HASH       => 3,
 }, 'self + is_deeply';
+
 good();
 cmp_deeply $mlh->last_diff, {
 	'REF-HASH' => 3,
 	HASH       => 3,
 	REF        => 3,
-	SCALAR     => range(29,30),
+	SCALAR     => range(29,36),
 }, 'good';
 
 leak();
 cmp_deeply $mlh->last_diff, {
 	HASH       => 3,
 	REF        => 3,
-	SCALAR     => range(29, 30),
+	SCALAR     => range(29, 36),
 	'REF-HASH' => 3},
 , 'leak';
 

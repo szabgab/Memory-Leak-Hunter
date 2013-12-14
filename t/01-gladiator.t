@@ -3,6 +3,21 @@ use warnings;
 
 use File::Temp qw(tempdir);
 use Test::More;
+use Test::Deep;
+
+sub range {
+	my ($x, $y) = @_;
+
+	return code(sub {
+		my $val = shift;
+		if ($x <= $val and $val <= $y) {
+			return 1;
+		} else {
+			return (0, "Expected $x <= VALUE <= $y\nReceived $val");
+		}
+	});
+}
+
 
 my $code1 = <<'CODE';
 sub f {
@@ -95,18 +110,18 @@ my @cases = (
 	},
 	{
 		code   => $code1,
-		rebase => { SCALAR => 12, ARRAY => 2, CODE => 1, GLOB => 1 },
+		rebase => { SCALAR => [10, 12], ARRAY => 2, CODE => 1, GLOB => 1 },
 		name   => 'function',
 	},
 	{
 		code   => $code2,
-		rebase => { SCALAR => 15, ARRAY => 2, 'REF-HASH' => 2, REF => 2, HASH => 2, 
+		rebase => { SCALAR => [13, 15], ARRAY => 2, 'REF-HASH' => 2, REF => 2, HASH => 2,
 			CODE => 1, GLOB => 1 },
 		name   => 'function + call once',
 	},
 	{
 		code   => $code3,
-		rebase => { SCALAR => 217, ARRAY => 2, 'REF-HASH' => 200, REF => 200, HASH => 200, 
+		rebase => { SCALAR => [215, 217], ARRAY => 2, 'REF-HASH' => 200, REF => 200, HASH => 200, 
 			CODE => 1, GLOB => 1 },
 		name   => 'function + call 100 times',
 	},
@@ -140,7 +155,7 @@ my $base = run_gladiator('');
 
 foreach my $c (@cases) {
 	#diag explain run_gladiator($c->{code});
-	is_deeply run_gladiator($c->{code}), rebase($c->{rebase}), $c->{name};
+	cmp_deeply run_gladiator($c->{code}), rebase($c->{rebase}), $c->{name};
 }
 
 
@@ -163,6 +178,13 @@ sub run_gladiator {
 sub rebase {
 	my ($add) = @_;
 	my %data = %$base;
-	$data{$_} += $add->{$_} for keys %$add;
+	for my $f (keys %$add) {
+		if (ref $add->{$f}) {
+			$data{$f} = range($data{$f}+$add->{$f}[0], $data{$f}+$add->{$f}[1]);
+		} else {
+			$data{$f} += $add->{$f};
+		}
+	}
 	return \%data;
 }
+
